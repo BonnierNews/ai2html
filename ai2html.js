@@ -3794,7 +3794,7 @@ function generateOutputHtml(content, pageName, settings) {
   var externalResponsiveJs;
   if (isTrue(settings.externalize_resizer_script)) {
     externalResponsiveJs = responsiveJs || getResizerScript();
-    saveTextFile(docPath + "resizerScript." + resizeScriptVersion + ".js", externalResponsiveJs);
+    saveTextFile(htmlFileDestinationFolder + "resizerScript." + resizeScriptVersion + ".js", externalResponsiveJs);
   }
 }
 } // end main() function definition
