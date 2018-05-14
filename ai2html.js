@@ -141,6 +141,7 @@ var defaultBaseSettings = {
   include_resizer_classes: {defaultValue: "no", includeInSettingsBlock: false, includeInConfigFile: false},
   include_resizer_widths: {defaultValue: "yes", includeInSettingsBlock: false, includeInConfigFile: false},
   include_resizer_script: {defaultValue: "no", includeInSettingsBlock: false, includeInConfigFile: false},
+  externalize_resizer_script: {defaultValue: "no", includeInSettingsBlock: false, includeInConfigFile: false},
   svg_embed_images: {defaultValue: "no", includeInSettingsBlock: false, includeInConfigFile: false},
   inline_svg: {defaultValue: false, includeInSettingsBlock: false, includeInConfigFile: false},
   svg_id_prefix: {defaultValue: "", includeInSettingsBlock: false, includeInConfigFile: false},
@@ -3841,6 +3842,12 @@ function generateOutputHtml(content, pageName, settings) {
     // TODO: may have missed a condition, need to compare with original version
     var previewFileDestination = htmlFileDestinationFolder + pageName + ".preview.html";
     outputLocalPreviewPage(textForFile, previewFileDestination, settings);
+  }
+
+  var externalResponsiveJs;
+  if (isTrue(settings.externalize_resizer_script)) {
+    externalResponsiveJs = responsiveJs || getResizerScript();
+    saveTextFile(docPath + "resizerScript." + resizeScriptVersion + ".js", externalResponsiveJs);
   }
 }
 } // end main() function definition
