@@ -3631,9 +3631,6 @@ function getResizerScript() {
 
     function updateAllGraphics() {
       selectElements(".ai2html-box-" + resizeScriptVersion).forEach(updateGraphic);
-      if (scriptEnvironment == "nyt-preview") {
-        nytOnResize();
-      }
     }
 
     function updateGraphic(container) {
@@ -3701,23 +3698,6 @@ function getResizerScript() {
     function selectElements(selector, parent) {
       var selection = (parent || document).querySelectorAll(selector);
       return Array.prototype.slice.call(selection);
-    }
-
-    function nytOnResize() {
-      // TODO: add comments
-      try {
-        if (window.parent && window.parent.$) {
-          window.parent.$("body").trigger("resizedcontent", [window]);
-        }
-        document.documentElement.dispatchEvent(new Event("resizedcontent"));
-        if (window.require && document.querySelector("meta[name=sourceApp]") && document.querySelector("meta[name=sourceApp]").content == "nyt-v5") {
-          require(["foundation/main"], function() {
-            require(["shared/interactive/instances/app-communicator"], function(AppCommunicator) {
-              AppCommunicator.triggerResize();
-            });
-          });
-        }
-      } catch(e) { console.log(e); }
     }
 
     // based on underscore.js
