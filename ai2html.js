@@ -129,7 +129,9 @@ var defaultBaseSettings = {
   cache_bust_token: {defaultValue: null, includeInSettingsBlock: false, includeInConfigFile: false},
   create_config_file: {defaultValue: "false", includeInSettingsBlock: false, includeInConfigFile: false},
   config_file_path: {defaultValue: "", includeInSettingsBlock: false, includeInConfigFile: false},
+  local_preview: {defaultValue: "yes", includeInSettingsBlock: true, includeInConfigFile: false},
   local_preview_template: {defaultValue: "", includeInSettingsBlock: true, includeInConfigFile: false},
+  local_preview_template_text: {defaultValue: '<!DOCTYPE html><html><head><meta charset="utf-8"></head><body><%= ai2htmlPartial %><script><%= resizerScript %></body></html>', includeInSettingsBlock: true, includeInConfigFile: false},
   png_transparent: {defaultValue: "yes", includeInSettingsBlock: false, includeInConfigFile: false},
   png_number_of_colors: {defaultValue: 128, includeInSettingsBlock: true, includeInConfigFile: false},
   jpg_quality: {defaultValue: 60, includeInSettingsBlock: true, includeInConfigFile: false},
@@ -3669,10 +3671,13 @@ function getResizerScript() {
 
 
 // Write an HTML page to a file for NYT Preview
-function outputLocalPreviewPage(textForFile, localPreviewDestination, settings) {
-  var localPreviewTemplateText = readTextFile(docPath + settings.local_preview_template);
-  settings.ai2htmlPartial = textForFile; // TODO: don't modify global settings this way
-  var localPreviewHtml = applyTemplate(localPreviewTemplateText, settings);
+function outputLocalPreviewPage(textForFile, localPreviewTemplateText, localPreviewDestination, settings) {
+  var templateReplacements = {
+    ai2htmlPartial: textForFile,
+    resizerScript: getResizerScript()
+  };
+  extend(templateReplacements, settings);
+  var localPreviewHtml = applyTemplate(localPreviewTemplateText, templateReplacements);
   saveTextFile(localPreviewDestination, localPreviewHtml);
 }
 
@@ -3774,10 +3779,16 @@ function generateOutputHtml(content, pageName, settings) {
   saveTextFile(htmlFileDestination, textForFile);
 
   // process local preview template if appropriate
-  if (settings.local_preview_template !== "") {
+  if (isTrue(settings.local_preview)) {
     // TODO: may have missed a condition, need to compare with original version
     var previewFileDestination = htmlFileDestinationFolder + pageName + ".preview.html";
-    outputLocalPreviewPage(textForFile, previewFileDestination, settings);
+    var localPreviewTemplateText;
+    if (settings.local_preview_template !== "") {
+      localPreviewTemplateText = readTextFile(docPath + settings.local_preview_template);
+    } else {
+      localPreviewTemplateText = settings.local_preview_template_text;
+    }
+    outputLocalPreviewPage(textForFile, localPreviewTemplateText, previewFileDestination, settings);
   }
 
   var externalResponsiveJs;
