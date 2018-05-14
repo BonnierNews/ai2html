@@ -131,7 +131,7 @@ var defaultBaseSettings = {
   config_file_path: {defaultValue: "", includeInSettingsBlock: false, includeInConfigFile: false},
   local_preview: {defaultValue: "yes", includeInSettingsBlock: true, includeInConfigFile: false},
   local_preview_template: {defaultValue: "", includeInSettingsBlock: true, includeInConfigFile: false},
-  local_preview_template_text: {defaultValue: '<!DOCTYPE html><html><head><meta charset="utf-8"></head><body><%= ai2htmlPartial %><script><%= resizerScript %></body></html>', includeInSettingsBlock: true, includeInConfigFile: false},
+  local_preview_template_text: {defaultValue: '<!DOCTYPE html><html><head><meta charset="utf-8"></head><body><%= ai2htmlPartial %><%= resizerScript %></body></html>', includeInSettingsBlock: true, includeInConfigFile: false},
   png_transparent: {defaultValue: "yes", includeInSettingsBlock: false, includeInConfigFile: false},
   png_number_of_colors: {defaultValue: 128, includeInSettingsBlock: true, includeInConfigFile: false},
   jpg_quality: {defaultValue: 60, includeInSettingsBlock: true, includeInConfigFile: false},
@@ -3551,10 +3551,10 @@ function convertSettingsToYaml(settings) {
   return lines.join('\n');
 }
 
-function getResizerScript() {
+function getResizerScript(bareScript) {
   // The resizer function is embedded in the HTML page -- external variables must
   // be passed in.
-  var resizer = function (scriptEnvironment, nameSpace) {
+  var resizer = function (scriptEnvironment, nameSpace, resizeScriptVersion) {
     // Use a sentinel class to ensure that this version of the resizer only initializes once
     if (document.documentElement.className.indexOf(nameSpace + "resizer-" + resizeScriptVersion + "-init") > -1) return;
     document.documentElement.className += " " + nameSpace + "resizer-" + resizeScriptVersion + "-init";
@@ -3665,7 +3665,11 @@ function getResizerScript() {
   // convert function to JS source code
   var resizerJs = '(' +
     trim(resizer.toString().replace(/  /g, '\t')) + // indent with tabs
-    ')("' + scriptEnvironment + '", "' + nameSpace + '");';
+    ')("' + scriptEnvironment + '", "' + nameSpace + '", "' + resizeScriptVersion + '");';
+  if (bareScript) {
+    return resizerJs;
+  }
+
   return '<script type="text/javascript">\r\t' + resizerJs + '\r</script>\r';
 }
 
@@ -3733,7 +3737,7 @@ function generateOutputHtml(content, pageName, settings) {
   }
 
   // HTML
-  html = '<div id="' + containerId + '" class="ai2html ai2html-box-' + resizeScriptVersion + '" data-version="' + scriptVersion + '">\r';
+  html = '<div id="' + containerId + '" class="ai2html ai2html-box-' + resizeScriptVersion + '" data-version="' + scriptVersion + '" data-resizer-version="' + resizeScriptVersion + '">\r';
   if (linkSrc) {
     // optional link around content
     html += "\t<a class='" + nameSpace + "ai2htmlLink' href='" + linkSrc + "'>\r";
@@ -3793,7 +3797,7 @@ function generateOutputHtml(content, pageName, settings) {
 
   var externalResponsiveJs;
   if (isTrue(settings.externalize_resizer_script)) {
-    externalResponsiveJs = responsiveJs || getResizerScript();
+    externalResponsiveJs = getResizerScript(true);
     saveTextFile(htmlFileDestinationFolder + "resizerScript." + resizeScriptVersion + ".js", externalResponsiveJs);
   }
 }
