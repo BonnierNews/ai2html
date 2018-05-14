@@ -46,7 +46,7 @@ function main() {
 // - Add an entry to CHANGELOG.md
 // - Run the release.sh script to create a new GitHub release
 var scriptVersion = "0.72.3";
-
+var resizeScriptVersion = "v5";
 // ================================================
 // ai2html and config settings
 // ================================================
@@ -3617,8 +3617,8 @@ function getResizerScript() {
   // be passed in.
   var resizer = function (scriptEnvironment, nameSpace) {
     // Use a sentinel class to ensure that this version of the resizer only initializes once
-    if (document.documentElement.className.indexOf(nameSpace + "resizer-v5-init") > -1) return;
-    document.documentElement.className += " " + nameSpace + "resizer-v5-init";
+    if (document.documentElement.className.indexOf(nameSpace + "resizer-" + resizeScriptVersion + "-init") > -1) return;
+    document.documentElement.className += " " + nameSpace + "resizer-" + resizeScriptVersion + "-init";
     // require IE9+
     if (!("querySelector" in document)) return;
     var observer = window.IntersectionObserver ? new IntersectionObserver(onIntersectionChange, {}) : null;
@@ -3630,7 +3630,7 @@ function getResizerScript() {
     window.addEventListener("resize", throttle(updateAllGraphics, 200));
 
     function updateAllGraphics() {
-      selectElements(".ai2html-box-v5").forEach(updateGraphic);
+      selectElements(".ai2html-box-" + resizeScriptVersion).forEach(updateGraphic);
       if (scriptEnvironment == "nyt-preview") {
         nytOnResize();
       }
@@ -3811,7 +3811,7 @@ function generateOutputHtml(content, pageName, settings) {
   }
 
   // HTML
-  html = '<div id="' + containerId + '" class="ai2html ai2html-box-v5">\r';
+  html = '<div id="' + containerId + '" class="ai2html ai2html-box-' + resizeScriptVersion + '" data-version="' + scriptVersion + '">\r';
   if (linkSrc) {
     // optional link around content
     html += "\t<a class='" + nameSpace + "ai2htmlLink' href='" + linkSrc + "'>\r";
