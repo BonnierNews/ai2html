@@ -123,6 +123,7 @@ var defaultBaseSettings = {
   project_name: {defaultValue: "", includeInSettingsBlock: false, includeInConfigFile: false},
   project_type: {defaultValue: "", includeInSettingsBlock: false, includeInConfigFile: false},
   html_output_path: {defaultValue: "/ai2html-output/", includeInSettingsBlock: true, includeInConfigFile: false},
+  html_output_name_template: {defaultValue: "[pageName].[resizeScriptVersion]", includeInSettingsBlock: true, includeInConfigFile: false},
   html_output_extension: {defaultValue: ".html", includeInSettingsBlock: true, includeInConfigFile: false},
   image_output_path: {defaultValue: "", includeInSettingsBlock: true, includeInConfigFile: false},
   image_source_path: {defaultValue: null, includeInSettingsBlock: false, includeInConfigFile: false},
@@ -3773,7 +3774,11 @@ function generateOutputHtml(content, pageName, settings) {
   textForFile = applyTemplate(textForFile, settings);
   htmlFileDestinationFolder = docPath + settings.html_output_path;
   checkForOutputFolder(htmlFileDestinationFolder, "html_output_path");
-  htmlFileDestination = htmlFileDestinationFolder + pageName + settings.html_output_extension;
+  var fileName = settings.html_output_name_template
+    .replace('[pageName]', pageName)
+    .replace('[scriptVersion]', scriptVersion)
+    .replace('[resizeScriptVersion]', resizeScriptVersion);
+  htmlFileDestination = htmlFileDestinationFolder + fileName + settings.html_output_extension;
 
   if (settings.output == 'one-file' && settings.project_type == 'ai2html') {
     htmlFileDestination = htmlFileDestinationFolder + "index" + settings.html_output_extension;
