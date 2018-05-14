@@ -3625,7 +3625,7 @@ function getResizerScript() {
     var visibilityIndex = {}; // visibility of each graphic, indexed by container id (used with InteractionObserver)
 
     updateAllGraphics();
-    window.addEventListener('nyt:embed:load', updateAllGraphics); // for nyt vi compatibility
+    window.addEventListener('bn:ai2html:load', updateAllGraphics); // for triggering graphics that was lazy loaded
     document.addEventListener("DOMContentLoaded", updateAllGraphics);
     window.addEventListener("resize", throttle(updateAllGraphics, 200));
 
